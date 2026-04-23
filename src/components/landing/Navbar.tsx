@@ -38,7 +38,7 @@ export const Navbar = () => {
             <Link to="/dashboard">Entrar</Link>
           </Button>
           <Button variant="hero" size="sm" asChild>
-            <Link to="/dashboard">Teste grátis</Link>
+            <Link to="/dashboard">Assinar</Link>
           </Button>
         </div>
 
@@ -69,7 +69,7 @@ export const Navbar = () => {
             </a>
           ))}
           <Button variant="hero" size="sm" asChild className="mt-2">
-            <Link to="/dashboard">Teste grátis</Link>
+            <Link to="/dashboard">Assinar</Link>
           </Button>
         </div>
       </div>

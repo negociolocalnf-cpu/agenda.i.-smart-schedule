@@ -18,7 +18,7 @@ export const CTA = () => {
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Button variant="accent" size="xl" asChild>
             <Link to="/dashboard">
-              Começar 14 dias grátis
+              Assinar agora
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
