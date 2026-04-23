@@ -1,4 +1,4 @@
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import {
   LayoutDashboard,
@@ -11,6 +11,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const items = [
   { to: "/dashboard", icon: LayoutDashboard, label: "Visão geral", end: true },
@@ -22,6 +23,13 @@ const items = [
 ];
 
 export const DashboardSidebar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    toast.success("Sessão encerrada");
+    navigate("/");
+  };
+
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
       <div className="flex h-16 items-center border-b border-sidebar-border px-6">
@@ -61,7 +69,10 @@ export const DashboardSidebar = () => {
             Assinatura ativa
           </p>
         </div>
-        <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-sidebar-foreground transition-smooth hover:bg-sidebar-accent/60 hover:text-sidebar-primary-foreground">
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-sidebar-foreground transition-smooth hover:bg-sidebar-accent/60 hover:text-sidebar-primary-foreground"
+        >
           <LogOut className="h-4 w-4" />
           Sair
         </button>

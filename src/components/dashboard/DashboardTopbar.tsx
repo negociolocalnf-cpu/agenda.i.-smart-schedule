@@ -1,6 +1,7 @@
 import { Bell, Search, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 interface TopbarProps {
   title: string;
@@ -9,6 +10,13 @@ interface TopbarProps {
 }
 
 export const DashboardTopbar = ({ title, subtitle, action }: TopbarProps) => {
+  const handleAction = () => {
+    if (action?.onClick) return action.onClick();
+    toast.info("Em breve: cadastro rápido de nova consulta", {
+      description: "Estamos preparando o formulário para você.",
+    });
+  };
+
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-md">
       <div className="flex h-16 items-center gap-4 px-6">
@@ -32,7 +40,7 @@ export const DashboardTopbar = ({ title, subtitle, action }: TopbarProps) => {
           <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent" />
         </Button>
 
-        <Button variant="hero" size="sm" onClick={action?.onClick}>
+        <Button variant="hero" size="sm" onClick={handleAction}>
           <Plus className="h-4 w-4" />
           {action?.label ?? "Nova consulta"}
         </Button>
