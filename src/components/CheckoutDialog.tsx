@@ -5,6 +5,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
+import { useAuth } from "@/hooks/useAuth";
 
 interface CheckoutDialogProps {
   open: boolean;
@@ -19,6 +20,8 @@ export function CheckoutDialog({
   priceId,
   planName,
 }: CheckoutDialogProps) {
+  const { user } = useAuth();
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto p-0">
@@ -28,9 +31,11 @@ export function CheckoutDialog({
           </DialogTitle>
         </DialogHeader>
         <div className="p-6">
-          {priceId && (
+          {priceId && user && (
             <StripeEmbeddedCheckout
               priceId={priceId}
+              userId={user.id}
+              customerEmail={user.email ?? undefined}
               returnUrl={`${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`}
             />
           )}

@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { useSubscription } from "@/hooks/useSubscription";
 
 const items = [
   { to: "/dashboard", icon: LayoutDashboard, label: "Visão geral", end: true },
@@ -24,8 +26,11 @@ const items = [
 
 export const DashboardSidebar = () => {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
+  const { isActive, planName, loading } = useSubscription();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await signOut();
     toast.success("Sessão encerrada");
     navigate("/");
   };
@@ -44,10 +49,10 @@ export const DashboardSidebar = () => {
             key={item.to}
             to={item.to}
             end={item.end}
-            className={({ isActive }) =>
+            className={({ isActive: navActive }) =>
               cn(
                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-smooth",
-                isActive
+                navActive
                   ? "bg-sidebar-accent text-sidebar-primary-foreground shadow-sm"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-primary-foreground"
               )
@@ -63,10 +68,22 @@ export const DashboardSidebar = () => {
         <div className="mb-3 rounded-xl bg-sidebar-accent/50 p-4">
           <div className="flex items-center gap-2 text-xs font-semibold text-sidebar-primary-foreground">
             <Bell className="h-3.5 w-3.5 text-accent" />
-            Plano Profissional
+            {loading
+              ? "Carregando…"
+              : isActive
+              ? `Plano ${planName ?? ""}`
+              : "Sem assinatura ativa"}
           </div>
           <p className="mt-1 text-xs text-sidebar-foreground">
-            Assinatura ativa
+            {loading
+              ? " "
+              : isActive
+              ? "Assinatura ativa"
+              : (
+                <Link to="/dashboard/configuracoes" className="underline">
+                  Ver planos
+                </Link>
+              )}
           </p>
         </div>
         <button
