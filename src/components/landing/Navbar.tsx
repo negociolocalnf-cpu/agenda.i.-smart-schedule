@@ -4,9 +4,11 @@ import { Logo } from "@/components/Logo";
 import { Menu } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const { user } = useAuth();
 
   const links = [
     { href: "#features", label: "Recursos" },
@@ -34,12 +36,20 @@ export const Navbar = () => {
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Button variant="ghost" size="sm" asChild>
-            <Link to="/dashboard">Entrar</Link>
-          </Button>
-          <Button variant="hero" size="sm" asChild>
-            <Link to="/dashboard">Assinar</Link>
-          </Button>
+          {user ? (
+            <Button variant="hero" size="sm" asChild>
+              <Link to="/dashboard">Painel</Link>
+            </Button>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/auth">Entrar</Link>
+              </Button>
+              <Button variant="hero" size="sm" asChild>
+                <a href="#pricing">Assinar</a>
+              </Button>
+            </>
+          )}
         </div>
 
         <button
@@ -68,9 +78,20 @@ export const Navbar = () => {
               {l.label}
             </a>
           ))}
-          <Button variant="hero" size="sm" asChild className="mt-2">
-            <Link to="/dashboard">Assinar</Link>
-          </Button>
+          {user ? (
+            <Button variant="hero" size="sm" asChild className="mt-2">
+              <Link to="/dashboard" onClick={() => setOpen(false)}>Painel</Link>
+            </Button>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/auth" onClick={() => setOpen(false)}>Entrar</Link>
+              </Button>
+              <Button variant="hero" size="sm" asChild className="mt-2">
+                <a href="#pricing" onClick={() => setOpen(false)}>Assinar</a>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </header>

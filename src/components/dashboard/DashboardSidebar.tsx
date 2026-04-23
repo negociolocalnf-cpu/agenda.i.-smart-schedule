@@ -74,17 +74,17 @@ export const DashboardSidebar = () => {
               ? `Plano ${planName ?? ""}`
               : "Sem assinatura ativa"}
           </div>
-          <p className="mt-1 text-xs text-sidebar-foreground">
-            {loading
-              ? " "
-              : isActive
-              ? "Assinatura ativa"
-              : (
+          {!loading && (
+            <div className="mt-1 text-xs text-sidebar-foreground">
+              {isActive ? (
+                "Assinatura ativa"
+              ) : (
                 <Link to="/dashboard/configuracoes" className="underline">
                   Ver planos
                 </Link>
               )}
-          </p>
+            </div>
+          )}
         </div>
         <button
           onClick={handleLogout}
