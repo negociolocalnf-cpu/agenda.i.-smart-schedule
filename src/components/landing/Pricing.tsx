@@ -1,12 +1,14 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
-import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { CheckoutDialog } from "@/components/CheckoutDialog";
 
 const plans = [
   {
     name: "Básico",
     price: "97",
+    priceId: "basico_mensal",
     desc: "Para profissionais autônomos começando.",
     features: [
       "1 profissional",
@@ -20,6 +22,7 @@ const plans = [
   {
     name: "Profissional",
     price: "197",
+    priceId: "profissional_mensal",
     desc: "Para clínicas em crescimento.",
     features: [
       "Até 5 profissionais",
@@ -34,6 +37,7 @@ const plans = [
   {
     name: "Premium",
     price: "297",
+    priceId: "premium_mensal",
     desc: "Para redes e multi-unidades.",
     features: [
       "Profissionais ilimitados",
@@ -48,6 +52,14 @@ const plans = [
 ];
 
 export const Pricing = () => {
+  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<{ priceId: string; name: string } | null>(null);
+
+  const handleSubscribe = (priceId: string, name: string) => {
+    setSelected({ priceId, name });
+    setOpen(true);
+  };
+
   return (
     <section id="pricing" className="container py-24">
       <div className="mx-auto max-w-2xl text-center">
@@ -89,9 +101,9 @@ export const Pricing = () => {
               variant={p.highlighted ? "hero" : "outline"}
               size="lg"
               className="mt-6 w-full"
-              asChild
+              onClick={() => handleSubscribe(p.priceId, p.name)}
             >
-              <Link to="/dashboard">{p.cta}</Link>
+              {p.cta}
             </Button>
             <ul className="mt-7 space-y-3">
               {p.features.map((f) => (
@@ -104,6 +116,13 @@ export const Pricing = () => {
           </div>
         ))}
       </div>
+
+      <CheckoutDialog
+        open={open}
+        onOpenChange={setOpen}
+        priceId={selected?.priceId ?? null}
+        planName={selected?.name}
+      />
     </section>
   );
 };
