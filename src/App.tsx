@@ -4,9 +4,12 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { AuthProvider } from "@/hooks/useAuth";
+import { RequireAuth } from "@/components/RequireAuth";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import CheckoutReturn from "./pages/CheckoutReturn.tsx";
+import Auth from "./pages/Auth.tsx";
 import DashboardLayout from "./pages/dashboard/DashboardLayout.tsx";
 import Dashboard from "./pages/dashboard/Dashboard.tsx";
 import Agenda from "./pages/dashboard/Agenda.tsx";
@@ -23,21 +26,31 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <PaymentTestModeBanner />
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/checkout/return" element={<CheckoutReturn />} />
-          <Route path="/dashboard" element={<DashboardLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="agenda" element={<Agenda />} />
-            <Route path="pacientes" element={<Pacientes />} />
-            <Route path="profissionais" element={<Profissionais />} />
-            <Route path="financeiro" element={<Financeiro />} />
-            <Route path="configuracoes" element={<Configuracoes />} />
-          </Route>
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <PaymentTestModeBanner />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/checkout/return" element={<CheckoutReturn />} />
+            <Route
+              path="/dashboard"
+              element={
+                <RequireAuth>
+                  <DashboardLayout />
+                </RequireAuth>
+              }
+            >
+              <Route index element={<Dashboard />} />
+              <Route path="agenda" element={<Agenda />} />
+              <Route path="pacientes" element={<Pacientes />} />
+              <Route path="profissionais" element={<Profissionais />} />
+              <Route path="financeiro" element={<Financeiro />} />
+              <Route path="configuracoes" element={<Configuracoes />} />
+            </Route>
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

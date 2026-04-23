@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CheckoutDialog } from "@/components/CheckoutDialog";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 const plans = [
   {
@@ -54,8 +57,16 @@ const plans = [
 export const Pricing = () => {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<{ priceId: string; name: string } | null>(null);
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubscribe = (priceId: string, name: string) => {
+    if (loading) return;
+    if (!user) {
+      toast.info("Crie sua conta para assinar");
+      navigate("/auth", { state: { from: "/#pricing" } });
+      return;
+    }
     setSelected({ priceId, name });
     setOpen(true);
   };
