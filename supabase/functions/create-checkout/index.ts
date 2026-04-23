@@ -101,10 +101,23 @@ Deno.serve(async (req) => {
       }
     );
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("create-checkout error:", message);
-    return new Response(JSON.stringify({ error: message }), {
-      status: 400,
+    const rawMessage = error instanceof Error ? error.message : "Unknown error";
+    // Log full detail server-side only
+    console.error("create-checkout error:", rawMessage, error);
+
+    // Map a small set of known/expected errors to safe client messages.
+    const safeMap: Record<string, { status: number; message: string }> = {
+      "Invalid priceId": { status: 400, message: "Invalid request." },
+      "Missing returnUrl": { status: 400, message: "Invalid request." },
+      "Invalid environment": { status: 400, message: "Invalid request." },
+      "Price not found": { status: 400, message: "Selected plan is unavailable." },
+    };
+    const mapped = safeMap[rawMessage] ?? {
+      status: 500,
+      message: "Unable to start checkout. Please try again.",
+    };
+    return new Response(JSON.stringify({ error: mapped.message }), {
+      status: mapped.status,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
