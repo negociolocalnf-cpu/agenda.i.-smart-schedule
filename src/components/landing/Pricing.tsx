@@ -33,7 +33,7 @@ const plans = [
   },
   {
     name: "Premium",
-    price: "397",
+    price: "297",
     desc: "Para redes e multi-unidades.",
     features: [
       "Profissionais ilimitados",
