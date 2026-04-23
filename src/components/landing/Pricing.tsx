@@ -42,7 +42,7 @@ const plans = [
       "API e integrações",
       "Suporte prioritário",
     ],
-    cta: "Falar com vendas",
+    cta: "Assinar Premium",
     highlighted: false,
   },
 ];
