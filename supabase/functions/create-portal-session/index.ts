@@ -77,10 +77,23 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown";
-    console.error("portal error:", message);
-    return new Response(JSON.stringify({ error: message }), {
-      status: 400,
+    const rawMessage = error instanceof Error ? error.message : "Unknown";
+    console.error("portal error:", rawMessage, error);
+
+    const safeMap: Record<string, { status: number; message: string }> = {
+      "Unauthorized": { status: 401, message: "Authentication required." },
+      "Invalid environment": { status: 400, message: "Invalid request." },
+      "No subscription found": {
+        status: 404,
+        message: "No active subscription found for this account.",
+      },
+    };
+    const mapped = safeMap[rawMessage] ?? {
+      status: 500,
+      message: "Unable to open billing portal. Please try again.",
+    };
+    return new Response(JSON.stringify({ error: mapped.message }), {
+      status: mapped.status,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
