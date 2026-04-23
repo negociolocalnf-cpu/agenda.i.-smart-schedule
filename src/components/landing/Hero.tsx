@@ -32,21 +32,21 @@ export const Hero = () => {
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Button variant="hero" size="xl" asChild>
               <Link to="/dashboard">
-                Começar teste grátis
+                Assinar agora
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
             <Button variant="outline" size="xl" asChild>
-              <a href="#features">Ver recursos</a>
+              <a href="#pricing">Ver planos</a>
             </Button>
           </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-muted-foreground">
             <span className="inline-flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-success" /> 14 dias grátis
+              <CheckCircle2 className="h-4 w-4 text-success" /> Ativação imediata
             </span>
             <span className="inline-flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-success" /> Sem cartão
+              <CheckCircle2 className="h-4 w-4 text-success" /> Cancele quando quiser
             </span>
             <span className="inline-flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-success" /> LGPD compliant

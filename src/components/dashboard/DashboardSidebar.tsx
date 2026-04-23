@@ -58,7 +58,7 @@ export const DashboardSidebar = () => {
             Plano Profissional
           </div>
           <p className="mt-1 text-xs text-sidebar-foreground">
-            12 dias restantes do trial
+            Assinatura ativa
           </p>
         </div>
         <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-sidebar-foreground transition-smooth hover:bg-sidebar-accent/60 hover:text-sidebar-primary-foreground">

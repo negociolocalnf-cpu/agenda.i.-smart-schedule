@@ -14,7 +14,7 @@ const plans = [
       "Lembretes por e-mail",
       "Portal do paciente",
     ],
-    cta: "Começar grátis",
+    cta: "Assinar Básico",
     highlighted: false,
   },
   {
@@ -28,7 +28,7 @@ const plans = [
       "Financeiro completo",
       "Prontuário digital",
     ],
-    cta: "Teste 14 dias grátis",
+    cta: "Assinar Profissional",
     highlighted: true,
   },
   {
@@ -58,7 +58,7 @@ export const Pricing = () => {
           Preços que crescem com você
         </h2>
         <p className="mt-4 text-lg text-muted-foreground">
-          14 dias grátis em qualquer plano. Cancele quando quiser.
+          Ativação imediata. Cancele quando quiser.
         </p>
       </div>
 
