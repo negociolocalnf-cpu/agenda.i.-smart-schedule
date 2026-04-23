@@ -1,3 +1,4 @@
+import { createClient } from "npm:@supabase/supabase-js@2";
 import { type StripeEnv, createStripeClient } from "../_shared/stripe.ts";
 
 const corsHeaders = {
@@ -7,11 +8,20 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+let _supabase: ReturnType<typeof createClient> | null = null;
+function getSupabase() {
+  if (!_supabase) {
+    _supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+  }
+  return _supabase;
+}
+
 interface CheckoutRequest {
   priceId: string;
   quantity?: number;
-  customerEmail?: string;
-  userId?: string;
   returnUrl: string;
   environment: StripeEnv;
 }
@@ -29,6 +39,27 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Require authenticated user — never trust a client-supplied userId.
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const token = authHeader.replace("Bearer ", "");
+    const supabase = getSupabase();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(token);
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const body = (await req.json()) as CheckoutRequest;
 
     if (!body.priceId || !/^[a-zA-Z0-9_-]+$/.test(body.priceId)) {
@@ -46,17 +77,19 @@ Deno.serve(async (req) => {
     const stripePrice = prices.data[0];
     const isRecurring = stripePrice.type === "recurring";
 
+    // userId is derived from the verified JWT, not the request body.
+    const userId = user.id;
+    const customerEmail = user.email ?? undefined;
+
     const session = await stripe.checkout.sessions.create({
       line_items: [{ price: stripePrice.id, quantity: body.quantity || 1 }],
       mode: isRecurring ? "subscription" : "payment",
       ui_mode: "embedded",
       return_url: body.returnUrl,
-      ...(body.customerEmail && { customer_email: body.customerEmail }),
-      ...(body.userId && {
-        metadata: { userId: body.userId },
-        ...(isRecurring && {
-          subscription_data: { metadata: { userId: body.userId } },
-        }),
+      ...(customerEmail && { customer_email: customerEmail }),
+      metadata: { userId },
+      ...(isRecurring && {
+        subscription_data: { metadata: { userId } },
       }),
     });
 
