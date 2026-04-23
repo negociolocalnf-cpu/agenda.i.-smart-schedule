@@ -3,8 +3,10 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import CheckoutReturn from "./pages/CheckoutReturn.tsx";
 import DashboardLayout from "./pages/dashboard/DashboardLayout.tsx";
 import Dashboard from "./pages/dashboard/Dashboard.tsx";
 import Agenda from "./pages/dashboard/Agenda.tsx";
@@ -21,8 +23,10 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <PaymentTestModeBanner />
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/checkout/return" element={<CheckoutReturn />} />
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="agenda" element={<Agenda />} />

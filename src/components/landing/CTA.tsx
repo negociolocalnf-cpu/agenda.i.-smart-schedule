@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
 
 export const CTA = () => {
+  const scrollToPricing = () => {
+    document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <section className="container py-20">
       <div className="relative overflow-hidden rounded-3xl bg-gradient-primary p-10 text-center shadow-glow md:p-16">
@@ -16,11 +19,9 @@ export const CTA = () => {
           Junte-se a centenas de clínicas que já automatizaram seu agendamento.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Button variant="accent" size="xl" asChild>
-            <Link to="/dashboard">
-              Assinar agora
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+          <Button variant="accent" size="xl" onClick={scrollToPricing}>
+            Ver planos
+            <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
       </div>
