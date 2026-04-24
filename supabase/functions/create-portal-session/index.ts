@@ -8,8 +8,8 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-let _supabase: ReturnType<typeof createClient> | null = null;
-function getSupabase() {
+let _supabase: any = null;
+function getSupabase(): any {
   if (!_supabase) {
     _supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
