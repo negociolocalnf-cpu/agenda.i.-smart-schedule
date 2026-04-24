@@ -130,6 +130,14 @@ const Agenda = () => {
     load();
   }, [load]);
 
+  useEffect(() => {
+    if (searchParams.get("new") === "1" && professionals.length && patients.length) {
+      openNew();
+      searchParams.delete("new");
+      setSearchParams(searchParams, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, professionals, patients]);
   const shiftDay = (delta: number) => {
     const d = new Date(date + "T12:00:00");
     d.setDate(d.getDate() + delta);
