@@ -305,6 +305,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_in_trial: {
+        Args: { _environment?: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
