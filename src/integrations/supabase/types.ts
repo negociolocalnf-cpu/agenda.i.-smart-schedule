@@ -14,6 +14,138 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          created_at: string
+          ends_at: string
+          id: string
+          notes: string | null
+          patient_id: string
+          price: number | null
+          professional_id: string
+          starts_at: string
+          status: Database["public"]["Enums"]["appointment_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ends_at: string
+          id?: string
+          notes?: string | null
+          patient_id: string
+          price?: number | null
+          professional_id: string
+          starts_at: string
+          status?: Database["public"]["Enums"]["appointment_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ends_at?: string
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          price?: number | null
+          professional_id?: string
+          starts_at?: string
+          status?: Database["public"]["Enums"]["appointment_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patients: {
+        Row: {
+          birth_date: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          birth_date?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          birth_date?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      professionals: {
+        Row: {
+          active: boolean
+          color: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          specialty: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          color?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          specialty?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          color?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          specialty?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -89,6 +221,53 @@ export type Database = {
         }
         Relationships: []
       }
+      transactions: {
+        Row: {
+          amount: number
+          appointment_id: string | null
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          occurred_on: string
+          type: Database["public"]["Enums"]["transaction_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          appointment_id?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          occurred_on?: string
+          type: Database["public"]["Enums"]["transaction_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          appointment_id?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          occurred_on?: string
+          type?: Database["public"]["Enums"]["transaction_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -129,6 +308,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      appointment_status:
+        | "scheduled"
+        | "confirmed"
+        | "completed"
+        | "no_show"
+        | "canceled"
+      transaction_type: "income" | "expense"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -257,6 +443,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      appointment_status: [
+        "scheduled",
+        "confirmed",
+        "completed",
+        "no_show",
+        "canceled",
+      ],
+      transaction_type: ["income", "expense"],
     },
   },
 } as const
