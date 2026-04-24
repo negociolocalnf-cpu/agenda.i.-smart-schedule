@@ -86,7 +86,8 @@ export function useSubscription() {
       ? new Date(subscription.current_period_end).getTime()
       : null;
     const future = !end || end > Date.now();
-    if (["active", "trialing", "past_due"].includes(subscription.status) && future)
+    // Trial NÃO concede acesso — somente pagamentos reais.
+    if (["active", "past_due"].includes(subscription.status) && future)
       return true;
     if (subscription.status === "canceled" && end && end > Date.now()) return true;
     return false;
