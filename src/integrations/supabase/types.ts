@@ -16,6 +16,8 @@ export type Database = {
     Tables: {
       appointments: {
         Row: {
+          confirmation_channel: string | null
+          confirmation_sent_at: string | null
           created_at: string
           ends_at: string
           id: string
@@ -29,6 +31,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          confirmation_channel?: string | null
+          confirmation_sent_at?: string | null
           created_at?: string
           ends_at: string
           id?: string
@@ -42,6 +46,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          confirmation_channel?: string | null
+          confirmation_sent_at?: string | null
           created_at?: string
           ends_at?: string
           id?: string

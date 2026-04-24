@@ -41,7 +41,8 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
-  Link as LinkIcon,
+  MessageCircle,
+  CheckCircle2,
 } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 
@@ -56,6 +57,8 @@ interface Appointment {
   status: Status;
   price: number | null;
   notes: string | null;
+  confirmation_sent_at: string | null;
+  confirmation_channel: "manual" | "api" | null;
   patient: { name: string; phone: string | null } | null;
   professional: { name: string; color: string | null } | null;
 }
@@ -97,6 +100,51 @@ const Agenda = () => {
   const [editing, setEditing] = useState<Appointment | null>(null);
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<Appointment | null>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
+
+  const handleConfirmWhatsapp = async (a: Appointment) => {
+    if (!a.patient?.phone) {
+      toast.error("Paciente sem telefone cadastrado");
+      return;
+    }
+    setConfirmingId(a.id);
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        "whatsapp-send-confirmation",
+        { body: { appointment_id: a.id, template: "confirmation" } },
+      );
+      if (error) throw new Error(error.message);
+      const res = data as {
+        ok?: boolean;
+        error?: string;
+        mode?: "manual" | "api";
+        url?: string;
+      };
+      if (res?.error) throw new Error(res.error);
+      if (res?.mode === "manual" && res.url) {
+        window.open(res.url, "_blank", "noopener,noreferrer");
+        toast.success("WhatsApp aberto com a mensagem pronta");
+      } else if (res?.mode === "api") {
+        toast.success("Confirmação enviada via WhatsApp");
+      }
+      // Optimistic update so the badge appears immediately
+      setItems((prev) =>
+        prev.map((it) =>
+          it.id === a.id
+            ? {
+                ...it,
+                confirmation_sent_at: new Date().toISOString(),
+                confirmation_channel: res?.mode ?? it.confirmation_channel,
+              }
+            : it,
+        ),
+      );
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha ao enviar confirmação");
+    } finally {
+      setConfirmingId(null);
+    }
+  };
 
   const [form, setForm] = useState({
     patient_id: "",
@@ -117,7 +165,7 @@ const Agenda = () => {
     const { data } = await supabase
       .from("appointments")
       .select(
-        "id, patient_id, professional_id, starts_at, ends_at, status, price, notes, patient:patients(name, phone), professional:professionals(name, color)"
+        "id, patient_id, professional_id, starts_at, ends_at, status, price, notes, confirmation_sent_at, confirmation_channel, patient:patients(name, phone), professional:professionals(name, color)"
       )
       .gte("starts_at", start)
       .lte("starts_at", end)
@@ -376,23 +424,41 @@ const Agenda = () => {
                     {statusLabels[a.status]}
                   </span>
                   <div className="flex items-center gap-1">
-                    {a.patient?.phone && (
+                    {a.confirmation_sent_at ? (
                       <Button
                         variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        asChild
-                        title="WhatsApp"
+                        size="sm"
+                        className="h-8 gap-1.5 text-success hover:text-success"
+                        onClick={() => handleConfirmWhatsapp(a)}
+                        disabled={confirmingId === a.id}
+                        title={`Confirmação enviada em ${new Date(a.confirmation_sent_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}${a.confirmation_channel ? ` (${a.confirmation_channel === "api" ? "API" : "manual"})` : ""}`}
                       >
-                        <a
-                          href={`https://wa.me/${a.patient.phone.replace(/\D/g, "")}?text=${encodeURIComponent(
-                            `Olá ${a.patient.name.split(" ")[0]}, lembrete da sua consulta dia ${new Date(a.starts_at).toLocaleDateString("pt-BR")} às ${fmtTime(a.starts_at)}.`
-                          )}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <LinkIcon className="h-4 w-4 text-success" />
-                        </a>
+                        {confirmingId === a.id ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                        )}
+                        <span className="hidden sm:inline text-xs">Reenviar</span>
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 gap-1.5"
+                        onClick={() => handleConfirmWhatsapp(a)}
+                        disabled={confirmingId === a.id || !a.patient?.phone}
+                        title={
+                          a.patient?.phone
+                            ? "Confirmar via WhatsApp"
+                            : "Paciente sem telefone"
+                        }
+                      >
+                        {confirmingId === a.id ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin text-success" />
+                        ) : (
+                          <MessageCircle className="h-3.5 w-3.5 text-success" />
+                        )}
+                        <span className="hidden sm:inline text-xs">Confirmar</span>
                       </Button>
                     )}
                     <Button variant="ghost" size="sm" onClick={() => openEdit(a)}>
