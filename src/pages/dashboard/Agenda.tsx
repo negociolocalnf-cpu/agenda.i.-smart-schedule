@@ -43,7 +43,7 @@ import {
   ChevronRight,
   Link as LinkIcon,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 type Status = "scheduled" | "confirmed" | "completed" | "no_show" | "canceled";
 
@@ -91,6 +91,7 @@ const Agenda = () => {
   const [date, setDate] = useState(todayISO());
   const [items, setItems] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Appointment | null>(null);
