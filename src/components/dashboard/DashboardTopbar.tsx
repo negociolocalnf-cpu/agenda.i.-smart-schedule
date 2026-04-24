@@ -1,7 +1,7 @@
 import { Bell, Search, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface TopbarProps {
   title: string;
@@ -10,11 +10,10 @@ interface TopbarProps {
 }
 
 export const DashboardTopbar = ({ title, subtitle, action }: TopbarProps) => {
+  const navigate = useNavigate();
   const handleAction = () => {
     if (action?.onClick) return action.onClick();
-    toast.info("Em breve: cadastro rápido de nova consulta", {
-      description: "Estamos preparando o formulário para você.",
-    });
+    navigate("/agenda?new=1");
   };
 
   return (
