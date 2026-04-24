@@ -43,7 +43,7 @@ import {
   ChevronRight,
   Link as LinkIcon,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 type Status = "scheduled" | "confirmed" | "completed" | "no_show" | "canceled";
 
@@ -91,6 +91,7 @@ const Agenda = () => {
   const [date, setDate] = useState(todayISO());
   const [items, setItems] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Appointment | null>(null);
@@ -129,6 +130,14 @@ const Agenda = () => {
     load();
   }, [load]);
 
+  useEffect(() => {
+    if (searchParams.get("new") === "1" && professionals.length && patients.length) {
+      openNew();
+      searchParams.delete("new");
+      setSearchParams(searchParams, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, professionals, patients]);
   const shiftDay = (delta: number) => {
     const d = new Date(date + "T12:00:00");
     d.setDate(d.getDate() + delta);
