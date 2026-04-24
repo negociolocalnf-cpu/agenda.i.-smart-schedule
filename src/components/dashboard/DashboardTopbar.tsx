@@ -13,7 +13,7 @@ export const DashboardTopbar = ({ title, subtitle, action }: TopbarProps) => {
   const navigate = useNavigate();
   const handleAction = () => {
     if (action?.onClick) return action.onClick();
-    navigate("/agenda?new=1");
+    navigate("/dashboard/agenda?new=1");
   };
 
   return (
