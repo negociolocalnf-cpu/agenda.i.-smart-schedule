@@ -289,9 +289,122 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_settings: {
+        Row: {
+          clinic_name: string | null
+          confirmation_template: string
+          created_at: string
+          display_phone_number: string | null
+          id: string
+          meta_access_token: string | null
+          meta_business_account_id: string | null
+          meta_phone_number_id: string | null
+          mode: string
+          reminder_template: string
+          updated_at: string
+          user_id: string
+          verification_error: string | null
+          verification_status: string
+          verified_at: string | null
+          verified_name: string | null
+        }
+        Insert: {
+          clinic_name?: string | null
+          confirmation_template?: string
+          created_at?: string
+          display_phone_number?: string | null
+          id?: string
+          meta_access_token?: string | null
+          meta_business_account_id?: string | null
+          meta_phone_number_id?: string | null
+          mode?: string
+          reminder_template?: string
+          updated_at?: string
+          user_id: string
+          verification_error?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          verified_name?: string | null
+        }
+        Update: {
+          clinic_name?: string | null
+          confirmation_template?: string
+          created_at?: string
+          display_phone_number?: string | null
+          id?: string
+          meta_access_token?: string | null
+          meta_business_account_id?: string | null
+          meta_phone_number_id?: string | null
+          mode?: string
+          reminder_template?: string
+          updated_at?: string
+          user_id?: string
+          verification_error?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          verified_name?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      whatsapp_settings_safe: {
+        Row: {
+          clinic_name: string | null
+          confirmation_template: string | null
+          created_at: string | null
+          display_phone_number: string | null
+          has_access_token: boolean | null
+          id: string | null
+          meta_business_account_id: string | null
+          meta_phone_number_id: string | null
+          mode: string | null
+          reminder_template: string | null
+          updated_at: string | null
+          user_id: string | null
+          verification_error: string | null
+          verification_status: string | null
+          verified_at: string | null
+          verified_name: string | null
+        }
+        Insert: {
+          clinic_name?: string | null
+          confirmation_template?: string | null
+          created_at?: string | null
+          display_phone_number?: string | null
+          has_access_token?: never
+          id?: string | null
+          meta_business_account_id?: string | null
+          meta_phone_number_id?: string | null
+          mode?: string | null
+          reminder_template?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          verification_error?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_name?: string | null
+        }
+        Update: {
+          clinic_name?: string | null
+          confirmation_template?: string | null
+          created_at?: string | null
+          display_phone_number?: string | null
+          has_access_token?: never
+          id?: string | null
+          meta_business_account_id?: string | null
+          meta_phone_number_id?: string | null
+          mode?: string | null
+          reminder_template?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          verification_error?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_name?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_active_subscription: {
