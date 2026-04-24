@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { getStripeEnvironment } from "@/lib/stripe";
@@ -50,11 +50,19 @@ export function useSubscription() {
     refetch();
   }, [refetch]);
 
+  // Keep a stable ref to refetch so the realtime effect doesn't re-run
+  // every time refetch's identity changes (which caused the channel to be
+  // re-created and `.on()` to be called after `.subscribe()`).
+  const refetchRef = useRef(refetch);
+  useEffect(() => {
+    refetchRef.current = refetch;
+  }, [refetch]);
+
   // Realtime: atualiza quando webhook gravar a assinatura
   useEffect(() => {
     if (!user) return;
     const channel = supabase
-      .channel(`sub-${user.id}`)
+      .channel(`sub-${user.id}-${Math.random().toString(36).slice(2)}`)
       .on(
         "postgres_changes",
         {
@@ -63,14 +71,14 @@ export function useSubscription() {
           table: "subscriptions",
           filter: `user_id=eq.${user.id}`,
         },
-        () => refetch()
+        () => refetchRef.current()
       )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, refetch]);
+  }, [user]);
 
   const isActive = (() => {
     if (!subscription) return false;
