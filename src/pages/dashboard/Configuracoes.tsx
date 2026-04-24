@@ -8,6 +8,7 @@ import { getStripeEnvironment } from "@/lib/stripe";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { CheckCircle2, Loader2, ExternalLink, AlertCircle } from "lucide-react";
+import { WhatsappSettingsCard } from "@/components/dashboard/WhatsappSettingsCard";
 
 const Configuracoes = () => {
   const { user } = useAuth();
@@ -121,6 +122,9 @@ const Configuracoes = () => {
             </>
           )}
         </section>
+
+        {/* WhatsApp */}
+        <WhatsappSettingsCard />
       </div>
     </>
   );
