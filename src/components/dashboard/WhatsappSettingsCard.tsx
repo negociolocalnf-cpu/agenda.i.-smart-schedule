@@ -31,12 +31,14 @@ const SAMPLE = {
 };
 
 function renderPreview(template: string, clinicName: string | null) {
-  return template
-    .replaceAll("{paciente}", SAMPLE.paciente)
-    .replaceAll("{profissional}", SAMPLE.profissional)
-    .replaceAll("{data}", SAMPLE.data)
-    .replaceAll("{hora}", SAMPLE.hora)
-    .replaceAll("{clinica}", clinicName?.trim() || SAMPLE.clinica);
+  const map: Record<string, string> = {
+    paciente: SAMPLE.paciente,
+    profissional: SAMPLE.profissional,
+    data: SAMPLE.data,
+    hora: SAMPLE.hora,
+    clinica: clinicName?.trim() || SAMPLE.clinica,
+  };
+  return template.replace(/\{(paciente|profissional|data|hora|clinica)\}/g, (_, k) => map[k]);
 }
 
 export function WhatsappSettingsCard() {
