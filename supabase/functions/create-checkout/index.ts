@@ -88,8 +88,14 @@ Deno.serve(async (req) => {
       return_url: body.returnUrl,
       ...(customerEmail && { customer_email: customerEmail }),
       metadata: { userId },
+      // Hard-block any free trial. Even if a trial is configured on the
+      // Stripe price by accident, force the subscription to start paid
+      // immediately (trial_period_days: 0 overrides the price-level trial).
       ...(isRecurring && {
-        subscription_data: { metadata: { userId } },
+        subscription_data: {
+          metadata: { userId },
+          trial_period_days: 0,
+        },
       }),
     });
 
