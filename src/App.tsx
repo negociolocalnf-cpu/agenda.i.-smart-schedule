@@ -17,6 +17,7 @@ import Pacientes from "./pages/dashboard/Pacientes.tsx";
 import Profissionais from "./pages/dashboard/Profissionais.tsx";
 import Financeiro from "./pages/dashboard/Financeiro.tsx";
 import Configuracoes from "./pages/dashboard/Configuracoes.tsx";
+import Confirmacoes from "./pages/dashboard/Confirmacoes.tsx";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,7 @@ const App = () => (
               <Route path="pacientes" element={<Pacientes />} />
               <Route path="profissionais" element={<Profissionais />} />
               <Route path="financeiro" element={<Financeiro />} />
+              <Route path="confirmacoes" element={<Confirmacoes />} />
               <Route path="configuracoes" element={<Configuracoes />} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

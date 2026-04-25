@@ -9,6 +9,7 @@ import {
   Stethoscope,
   Bell,
   LogOut,
+  MessageCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -21,6 +22,7 @@ const items = [
   { to: "/dashboard/pacientes", icon: Users, label: "Pacientes" },
   { to: "/dashboard/profissionais", icon: Stethoscope, label: "Profissionais" },
   { to: "/dashboard/financeiro", icon: Wallet, label: "Financeiro" },
+  { to: "/dashboard/confirmacoes", icon: MessageCircle, label: "Confirmações" },
   { to: "/dashboard/configuracoes", icon: Settings, label: "Configurações" },
 ];
 
