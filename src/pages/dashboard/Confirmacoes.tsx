@@ -203,6 +203,20 @@ const Confirmacoes = () => {
       </Badge>
     );
 
+  const renderTemplate = (row: Row): string => {
+    const tpl = settings?.confirmation_template ?? "";
+    if (!tpl) return "Configure o template em Configurações › WhatsApp.";
+    const date = new Date(row.starts_at);
+    const data = date.toLocaleDateString("pt-BR");
+    const hora = date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    return tpl
+      .replace(/\{paciente\}/g, row.patient?.name ?? "")
+      .replace(/\{profissional\}/g, row.professional?.name ?? "")
+      .replace(/\{data\}/g, data)
+      .replace(/\{hora\}/g, hora)
+      .replace(/\{clinica\}/g, settings?.clinic_name ?? "");
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <DashboardTopbar
