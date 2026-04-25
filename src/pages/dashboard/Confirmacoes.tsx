@@ -25,21 +25,32 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
+import { useWhatsappSettings } from "@/hooks/useWhatsappSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, MessageCircle, CheckCircle2, XCircle, Search } from "lucide-react";
+import { Loader2, MessageCircle, CheckCircle2, XCircle, Search, Mail, Phone, User, Calendar as CalendarIcon } from "lucide-react";
 
 type Channel = "manual" | "api" | null;
 
 interface Row {
   id: string;
   starts_at: string;
+  ends_at: string;
   status: string;
+  notes: string | null;
   confirmation_sent_at: string | null;
   confirmation_channel: Channel;
-  patient: { id: string; name: string; phone: string | null } | null;
-  professional: { id: string; name: string } | null;
+  patient: { id: string; name: string; phone: string | null; email: string | null } | null;
+  professional: { id: string; name: string; specialty: string | null } | null;
 }
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
