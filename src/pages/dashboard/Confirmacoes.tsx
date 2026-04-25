@@ -72,12 +72,14 @@ const fmtDateTime = (iso: string | null) =>
 
 const Confirmacoes = () => {
   const { user } = useAuth();
+  const { settings } = useWhatsappSettings();
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState<Row[]>([]);
   const [from, setFrom] = useState(monthStart());
   const [to, setTo] = useState(todayISO());
   const [channelFilter, setChannelFilter] = useState<"all" | "manual" | "api" | "none">("all");
   const [search, setSearch] = useState("");
+  const [selected, setSelected] = useState<Row | null>(null);
 
   const load = async () => {
     if (!user) return;
@@ -88,7 +90,7 @@ const Confirmacoes = () => {
       const { data, error } = await supabase
         .from("appointments")
         .select(
-          "id, starts_at, status, confirmation_sent_at, confirmation_channel, patient:patients(id, name, phone), professional:professionals(id, name)"
+          "id, starts_at, ends_at, status, notes, confirmation_sent_at, confirmation_channel, patient:patients(id, name, phone, email), professional:professionals(id, name, specialty)"
         )
         .eq("user_id", user.id)
         .gte("starts_at", fromIso)
