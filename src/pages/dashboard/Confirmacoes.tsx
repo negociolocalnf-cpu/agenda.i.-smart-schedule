@@ -181,7 +181,7 @@ const Confirmacoes = () => {
 
   const StatusBadge = ({ sent }: { sent: boolean }) =>
     sent ? (
-      <Badge className="gap-1 bg-emerald-500/15 text-emerald-700 hover:bg-emerald-500/20 dark:text-emerald-300">
+      <Badge className="gap-1 bg-accent/15 text-accent hover:bg-accent/20">
         <CheckCircle2 className="h-3 w-3" /> Enviada
       </Badge>
     ) : (
@@ -194,7 +194,7 @@ const Confirmacoes = () => {
     <div className="flex flex-col gap-6">
       <DashboardTopbar
         title="Confirmações WhatsApp"
-        description="Histórico de confirmações enviadas por consulta e por paciente."
+        subtitle="Histórico de confirmações enviadas por consulta e por paciente."
       />
 
       {/* Filtros */}
