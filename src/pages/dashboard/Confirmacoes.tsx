@@ -296,7 +296,11 @@ const Confirmacoes = () => {
                 </TableHeader>
                 <TableBody>
                   {filtered.map((r) => (
-                    <TableRow key={r.id}>
+                    <TableRow
+                      key={r.id}
+                      className="cursor-pointer"
+                      onClick={() => setSelected(r)}
+                    >
                       <TableCell className="whitespace-nowrap">{fmtDateTime(r.starts_at)}</TableCell>
                       <TableCell>
                         <div className="font-medium">{r.patient?.name ?? "—"}</div>
