@@ -25,21 +25,32 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
+import { useWhatsappSettings } from "@/hooks/useWhatsappSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, MessageCircle, CheckCircle2, XCircle, Search } from "lucide-react";
+import { Loader2, MessageCircle, CheckCircle2, XCircle, Search, Mail, Phone, User, Calendar as CalendarIcon } from "lucide-react";
 
 type Channel = "manual" | "api" | null;
 
 interface Row {
   id: string;
   starts_at: string;
+  ends_at: string;
   status: string;
+  notes: string | null;
   confirmation_sent_at: string | null;
   confirmation_channel: Channel;
-  patient: { id: string; name: string; phone: string | null } | null;
-  professional: { id: string; name: string } | null;
+  patient: { id: string; name: string; phone: string | null; email: string | null } | null;
+  professional: { id: string; name: string; specialty: string | null } | null;
 }
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
@@ -61,12 +72,14 @@ const fmtDateTime = (iso: string | null) =>
 
 const Confirmacoes = () => {
   const { user } = useAuth();
+  const { settings } = useWhatsappSettings();
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState<Row[]>([]);
   const [from, setFrom] = useState(monthStart());
   const [to, setTo] = useState(todayISO());
   const [channelFilter, setChannelFilter] = useState<"all" | "manual" | "api" | "none">("all");
   const [search, setSearch] = useState("");
+  const [selected, setSelected] = useState<Row | null>(null);
 
   const load = async () => {
     if (!user) return;
@@ -77,7 +90,7 @@ const Confirmacoes = () => {
       const { data, error } = await supabase
         .from("appointments")
         .select(
-          "id, starts_at, status, confirmation_sent_at, confirmation_channel, patient:patients(id, name, phone), professional:professionals(id, name)"
+          "id, starts_at, ends_at, status, notes, confirmation_sent_at, confirmation_channel, patient:patients(id, name, phone, email), professional:professionals(id, name, specialty)"
         )
         .eq("user_id", user.id)
         .gte("starts_at", fromIso)
@@ -190,6 +203,20 @@ const Confirmacoes = () => {
       </Badge>
     );
 
+  const renderTemplate = (row: Row): string => {
+    const tpl = settings?.confirmation_template ?? "";
+    if (!tpl) return "Configure o template em Configurações › WhatsApp.";
+    const date = new Date(row.starts_at);
+    const data = date.toLocaleDateString("pt-BR");
+    const hora = date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    return tpl
+      .replace(/\{paciente\}/g, row.patient?.name ?? "")
+      .replace(/\{profissional\}/g, row.professional?.name ?? "")
+      .replace(/\{data\}/g, data)
+      .replace(/\{hora\}/g, hora)
+      .replace(/\{clinica\}/g, settings?.clinic_name ?? "");
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <DashboardTopbar
@@ -283,7 +310,11 @@ const Confirmacoes = () => {
                 </TableHeader>
                 <TableBody>
                   {filtered.map((r) => (
-                    <TableRow key={r.id}>
+                    <TableRow
+                      key={r.id}
+                      className="cursor-pointer"
+                      onClick={() => setSelected(r)}
+                    >
                       <TableCell className="whitespace-nowrap">{fmtDateTime(r.starts_at)}</TableCell>
                       <TableCell>
                         <div className="font-medium">{r.patient?.name ?? "—"}</div>
@@ -361,6 +392,117 @@ const Confirmacoes = () => {
           Atualizar
         </Button>
       </div>
+
+      {/* Modal de detalhes */}
+      <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MessageCircle className="h-5 w-5 text-primary" />
+              Detalhes da confirmação
+            </DialogTitle>
+            <DialogDescription>
+              Informações da consulta e da mensagem enviada ao paciente.
+            </DialogDescription>
+          </DialogHeader>
+
+          {selected && (
+            <div className="space-y-5">
+              {/* Status / canal */}
+              <div className="flex flex-wrap items-center gap-2">
+                <StatusBadge sent={!!selected.confirmation_sent_at} />
+                <ChannelBadge channel={selected.confirmation_channel} />
+                {selected.confirmation_sent_at && (
+                  <span className="text-xs text-muted-foreground">
+                    Enviada em {fmtDateTime(selected.confirmation_sent_at)}
+                  </span>
+                )}
+              </div>
+
+              {/* Consulta */}
+              <div className="rounded-lg border bg-muted/30 p-3">
+                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Consulta
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">{fmtDateTime(selected.starts_at)}</span>
+                  <span className="text-muted-foreground">
+                    – {fmtDateTime(selected.ends_at).split(" ")[1] ?? ""}
+                  </span>
+                </div>
+                <div className="mt-1.5 flex items-center gap-2 text-sm">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <span>
+                    {selected.professional?.name ?? "—"}
+                    {selected.professional?.specialty && (
+                      <span className="text-muted-foreground">
+                        {" "}· {selected.professional.specialty}
+                      </span>
+                    )}
+                  </span>
+                </div>
+                {selected.notes && (
+                  <div className="mt-2 text-xs text-muted-foreground">
+                    {selected.notes}
+                  </div>
+                )}
+              </div>
+
+              {/* Paciente */}
+              <div className="rounded-lg border bg-muted/30 p-3">
+                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Paciente
+                </div>
+                <div className="text-sm font-medium">{selected.patient?.name ?? "—"}</div>
+                <div className="mt-1 grid gap-1 text-sm text-muted-foreground">
+                  {selected.patient?.phone && (
+                    <a
+                      href={`tel:${selected.patient.phone}`}
+                      className="flex items-center gap-2 hover:text-foreground"
+                    >
+                      <Phone className="h-4 w-4" /> {selected.patient.phone}
+                    </a>
+                  )}
+                  {selected.patient?.email && (
+                    <a
+                      href={`mailto:${selected.patient.email}`}
+                      className="flex items-center gap-2 hover:text-foreground"
+                    >
+                      <Mail className="h-4 w-4" /> {selected.patient.email}
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Mensagem */}
+              <div>
+                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Mensagem {selected.confirmation_sent_at ? "enviada" : "(prévia do template)"}
+                </div>
+                <div className="whitespace-pre-wrap rounded-lg border bg-card p-3 text-sm">
+                  {renderTemplate(selected)}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2">
+            {selected?.patient?.phone && (
+              <Button asChild variant="outline">
+                <a
+                  href={`https://wa.me/${selected.patient.phone.replace(/\D/g, "")}?text=${encodeURIComponent(renderTemplate(selected))}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <MessageCircle className="h-4 w-4" /> Abrir WhatsApp
+                </a>
+              </Button>
+            )}
+            <Button onClick={() => setSelected(null)}>Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
