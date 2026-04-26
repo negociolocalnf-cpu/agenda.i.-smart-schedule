@@ -132,8 +132,8 @@ Deno.serve(async (req) => {
     if (!patient?.name) return json({ error: "Paciente sem nome cadastrado" }, 400);
     if (!patient?.phone) return json({ error: "Paciente sem telefone cadastrado" }, 400);
 
-    // Load WhatsApp settings
-    const { data: settings, error: setErr } = await admin
+    // Load WhatsApp settings (fallback to manual defaults if not yet configured)
+    const { data: settingsRow, error: setErr } = await admin
       .from("whatsapp_settings")
       .select(
         "mode, clinic_name, confirmation_template, reminder_template, meta_phone_number_id, meta_access_token, verification_status",
@@ -142,12 +142,21 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (setErr) return json({ error: "Falha ao carregar configurações" }, 500);
-    if (!settings) {
-      return json(
-        { error: "Configure o WhatsApp em Configurações antes de enviar." },
-        400,
-      );
-    }
+
+    const DEFAULT_CONFIRMATION =
+      "Olá {paciente}! Confirmamos sua consulta com {profissional} em {data} às {hora}. Por favor, responda CONFIRMO para confirmar. — {clinica}";
+    const DEFAULT_REMINDER =
+      "Olá {paciente}, lembrete da sua consulta com {profissional} amanhã ({data}) às {hora}. — {clinica}";
+
+    const settings = settingsRow ?? {
+      mode: "manual",
+      clinic_name: null,
+      confirmation_template: DEFAULT_CONFIRMATION,
+      reminder_template: DEFAULT_REMINDER,
+      meta_phone_number_id: null,
+      meta_access_token: null,
+      verification_status: "not_verified",
+    };
 
     const tpl =
       template === "reminder" ? settings.reminder_template : settings.confirmation_template;
