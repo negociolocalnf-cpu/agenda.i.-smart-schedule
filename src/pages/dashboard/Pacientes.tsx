@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +39,8 @@ import {
   Mail,
   AlertTriangle,
 } from "lucide-react";
+import { EmptyState } from "@/components/EmptyState";
+import { BirthdaysCard } from "@/components/dashboard/BirthdaysCard";
 
 const empty = {
   name: "",
@@ -58,6 +61,7 @@ const Pacientes = () => {
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<Patient | null>(null);
   const [search, setSearch] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -69,6 +73,31 @@ const Pacientes = () => {
         p.phone?.includes(q)
     );
   }, [data, search]);
+
+  // Open "new patient" dialog when ?new=1 is present (used by P shortcut)
+  useEffect(() => {
+    if (searchParams.get("new") === "1") {
+      setEditing(null);
+      setForm(empty);
+      setOpen(true);
+      searchParams.delete("new");
+      setSearchParams(searchParams, { replace: true });
+    }
+    // Highlight a patient when ?focus=ID is present (from global search)
+    const focus = searchParams.get("focus");
+    if (focus) {
+      setTimeout(() => {
+        const el = document.getElementById(`patient-${focus}`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          el.classList.add("ring-2", "ring-primary");
+          setTimeout(() => el.classList.remove("ring-2", "ring-primary"), 2000);
+        }
+      }, 100);
+      searchParams.delete("focus");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const openNew = () => {
     setEditing(null);
