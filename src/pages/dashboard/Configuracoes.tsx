@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { CheckCircle2, Loader2, ExternalLink, AlertCircle } from "lucide-react";
 import { WhatsappSettingsCard } from "@/components/dashboard/WhatsappSettingsCard";
+import { BirthdayAutomationCard } from "@/components/dashboard/BirthdayAutomationCard";
 
 const Configuracoes = () => {
   const { user } = useAuth();
@@ -125,6 +126,9 @@ const Configuracoes = () => {
 
         {/* WhatsApp */}
         <WhatsappSettingsCard />
+
+        {/* Automação de aniversários */}
+        <BirthdayAutomationCard />
       </div>
     </>
   );
