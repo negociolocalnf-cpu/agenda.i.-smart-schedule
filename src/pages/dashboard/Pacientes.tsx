@@ -197,7 +197,7 @@ const Pacientes = () => {
                       {p.phone ? <span>{p.phone}</span> : null}
                       {p.email ? <span className="truncate">{p.email}</span> : null}
                       {!p.phone && !p.email && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-warning-soft px-2 py-0.5 text-[10px] font-semibold uppercase text-warning">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2 py-0.5 text-[10px] font-semibold uppercase text-warning">
                           <AlertTriangle className="h-3 w-3" /> Sem contato
                         </span>
                       )}
