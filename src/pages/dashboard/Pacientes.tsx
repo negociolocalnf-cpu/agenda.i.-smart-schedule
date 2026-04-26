@@ -178,6 +178,8 @@ const Pacientes = () => {
       />
 
       <div className="space-y-6 p-6">
+        {data.length > 0 && <BirthdaysCard />}
+
         <div className="relative max-w-md">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -193,18 +195,16 @@ const Pacientes = () => {
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : data.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-soft text-primary">
-              <Users className="h-6 w-6" />
-            </div>
-            <h3 className="font-display text-lg font-bold">Nenhum paciente ainda</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Cadastre seus pacientes para agendá-los e acompanhar o histórico.
-            </p>
-            <Button variant="hero" className="mt-6" onClick={openNew}>
-              <Plus className="h-4 w-4" /> Cadastrar primeiro paciente
-            </Button>
-          </div>
+          <EmptyState
+            icon={Users}
+            title="Nenhum paciente ainda"
+            description="Cadastre seus pacientes para agendá-los e acompanhar histórico, contatos e aniversários."
+            action={{
+              label: "Cadastrar primeiro paciente",
+              onClick: openNew,
+              icon: Plus,
+            }}
+          />
         ) : filtered.length === 0 ? (
           <p className="text-center text-sm text-muted-foreground">
             Nenhum paciente encontrado para "{search}".
@@ -214,6 +214,7 @@ const Pacientes = () => {
             <ul className="divide-y divide-border">
               {filtered.map((p) => (
                 <li
+                  id={`patient-${p.id}`}
                   key={p.id}
                   className="flex flex-wrap items-center gap-4 p-4 transition-smooth hover:bg-secondary/40"
                 >
