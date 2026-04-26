@@ -92,6 +92,7 @@ const Agenda = () => {
   const { user } = useAuth();
   const { data: professionals } = useProfessionals();
   const { data: patients } = usePatients();
+  const { settings: whatsappSettings } = useWhatsappSettings();
   const [date, setDate] = useState(todayISO());
   const [items, setItems] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -106,6 +107,23 @@ const Agenda = () => {
   const handleConfirmWhatsapp = async (a: Appointment) => {
     if (!a.patient?.phone) {
       toast.error("Paciente sem telefone cadastrado");
+      return;
+    }
+    // Block API sends when credentials are not verified
+    if (
+      whatsappSettings?.mode === "api" &&
+      whatsappSettings.verification_status !== "valid"
+    ) {
+      const reason =
+        whatsappSettings.verification_status === "invalid"
+          ? "As credenciais Meta estão inválidas."
+          : "As credenciais Meta ainda não foram verificadas.";
+      toast.error(`${reason} Verifique em Configurações antes de enviar via API.`, {
+        action: {
+          label: "Abrir Configurações",
+          onClick: () => window.open("/dashboard/configuracoes", "_self"),
+        },
+      });
       return;
     }
     setConfirmingId(a.id);
