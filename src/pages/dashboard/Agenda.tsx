@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useProfessionals, usePatients } from "@/hooks/useClinicData";
 import { useAuth } from "@/hooks/useAuth";
+import { useWhatsappSettings } from "@/hooks/useWhatsappSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
