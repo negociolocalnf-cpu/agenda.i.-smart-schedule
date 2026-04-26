@@ -46,7 +46,7 @@ import {
   CheckCircle2,
   AlertTriangle,
 } from "lucide-react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 
 type Status = "scheduled" | "confirmed" | "completed" | "no_show" | "canceled";
 
