@@ -47,6 +47,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
+import { checkAppointmentConflict } from "@/lib/scheduling";
 
 type Status = "scheduled" | "confirmed" | "completed" | "no_show" | "canceled";
 
