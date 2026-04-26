@@ -205,6 +205,12 @@ const Agenda = () => {
   }, [load]);
 
   useEffect(() => {
+    const dateParam = searchParams.get("date");
+    if (dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
+      setDate(dateParam);
+      searchParams.delete("date");
+      setSearchParams(searchParams, { replace: true });
+    }
     if (searchParams.get("new") === "1" && professionals.length && patients.length) {
       openNew();
       searchParams.delete("new");
