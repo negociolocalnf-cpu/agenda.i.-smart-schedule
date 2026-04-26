@@ -12,8 +12,10 @@ import {
   EyeOff,
   ShieldCheck,
   MessageCircle,
+  Send,
 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import {
   useWhatsappSettings,
   type WhatsappMode,
@@ -53,6 +55,11 @@ export function WhatsappSettingsCard() {
   const [businessAccountId, setBusinessAccountId] = useState("");
   const [accessToken, setAccessToken] = useState("");
   const [showToken, setShowToken] = useState(false);
+  const [testPhone, setTestPhone] = useState("");
+  const [testTemplate, setTestTemplate] = useState<"confirmation" | "reminder">(
+    "confirmation",
+  );
+  const [sendingTest, setSendingTest] = useState<"manual" | "api" | null>(null);
 
   // Hydrate from server state
   useEffect(() => {
@@ -164,6 +171,45 @@ export function WhatsappSettingsCard() {
       }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Falha na verificação");
+    }
+  };
+
+  const handleSendTest = async (channel: "manual" | "api") => {
+    if (testPhone.replace(/\D/g, "").length < 10) {
+      toast.error("Informe um telefone válido (com DDD).");
+      return;
+    }
+    if (dirty) {
+      toast.error("Salve as alterações antes de enviar um teste.");
+      return;
+    }
+    setSendingTest(channel);
+    try {
+      const { data, error } = await supabase.functions.invoke("whatsapp-send-test", {
+        body: { to_phone: testPhone, template: testTemplate, channel },
+      });
+      if (error) throw new Error(error.message);
+      const payload = data as {
+        ok?: boolean;
+        error?: string;
+        url?: string;
+        meta_message_id?: string | null;
+      };
+      if (payload?.error) throw new Error(payload.error);
+      if (channel === "manual" && payload?.url) {
+        window.open(payload.url, "_blank", "noopener,noreferrer");
+        toast.success("Link de teste aberto no WhatsApp.");
+      } else {
+        toast.success(
+          payload?.meta_message_id
+            ? `Teste enviado via API (id ${payload.meta_message_id}).`
+            : "Teste enviado.",
+        );
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha ao enviar teste");
+    } finally {
+      setSendingTest(null);
     }
   };
 
@@ -390,6 +436,94 @@ export function WhatsappSettingsCard() {
               )}
             </div>
           )}
+
+          {/* Enviar teste */}
+          <div className="space-y-3 rounded-xl border border-border bg-muted/20 p-4">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <Send className="h-4 w-4 text-primary" />
+              Enviar teste
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Envie uma mensagem de teste para o seu próprio número antes de usar
+              na agenda. Isso confirma que o template e a entrega estão corretos.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-[1fr,auto]">
+              <div className="space-y-1.5">
+                <Label htmlFor="test_phone">Telefone (com DDD)</Label>
+                <Input
+                  id="test_phone"
+                  value={testPhone}
+                  onChange={(e) => setTestPhone(e.target.value)}
+                  placeholder="Ex: 11999999999"
+                  inputMode="tel"
+                  maxLength={20}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Template</Label>
+                <RadioGroup
+                  value={testTemplate}
+                  onValueChange={(v) =>
+                    setTestTemplate(v as "confirmation" | "reminder")
+                  }
+                  className="flex h-10 items-center gap-3 rounded-md border border-border bg-background px-3"
+                >
+                  <label className="flex cursor-pointer items-center gap-1.5 text-xs">
+                    <RadioGroupItem value="confirmation" />
+                    Confirmação
+                  </label>
+                  <label className="flex cursor-pointer items-center gap-1.5 text-xs">
+                    <RadioGroupItem value="reminder" />
+                    Lembrete
+                  </label>
+                </RadioGroup>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => handleSendTest("manual")}
+                disabled={sendingTest !== null || dirty}
+              >
+                {sendingTest === "manual" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <MessageCircle className="h-4 w-4" />
+                )}
+                Testar modo manual
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => handleSendTest("api")}
+                disabled={
+                  sendingTest !== null ||
+                  dirty ||
+                  status !== "valid" ||
+                  !settings?.has_access_token
+                }
+                title={
+                  status !== "valid"
+                    ? "Verifique as credenciais Meta antes de testar via API."
+                    : undefined
+                }
+              >
+                {sendingTest === "api" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
+                Testar via API
+              </Button>
+            </div>
+            {dirty && (
+              <p className="text-xs text-muted-foreground">
+                Salve as alterações antes de enviar um teste.
+              </p>
+            )}
+          </div>
 
           <div className="flex items-center justify-end gap-2 border-t border-border pt-4">
             <Button
