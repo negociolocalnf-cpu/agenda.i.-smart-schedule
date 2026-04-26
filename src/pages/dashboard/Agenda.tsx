@@ -98,6 +98,7 @@ const Agenda = () => {
   const [items, setItems] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Appointment | null>(null);
