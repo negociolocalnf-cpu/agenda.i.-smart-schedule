@@ -48,6 +48,7 @@ function renderPreview(template: string, clinicName: string | null) {
 export function WhatsappSettingsCard() {
   const { settings, loading, saving, verifying, save, verify, defaults } =
     useWhatsappSettings();
+  const { user } = useAuth();
 
   const [mode, setMode] = useState<WhatsappMode>("manual");
   const [clinicName, setClinicName] = useState("");
