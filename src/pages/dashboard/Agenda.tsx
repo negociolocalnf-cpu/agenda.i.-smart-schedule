@@ -47,6 +47,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
+import { checkAppointmentConflict } from "@/lib/scheduling";
 
 type Status = "scheduled" | "confirmed" | "completed" | "no_show" | "canceled";
 
@@ -204,6 +205,12 @@ const Agenda = () => {
   }, [load]);
 
   useEffect(() => {
+    const dateParam = searchParams.get("date");
+    if (dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
+      setDate(dateParam);
+      searchParams.delete("date");
+      setSearchParams(searchParams, { replace: true });
+    }
     if (searchParams.get("new") === "1" && professionals.length && patients.length) {
       openNew();
       searchParams.delete("new");
@@ -261,9 +268,29 @@ const Agenda = () => {
       toast.error("Selecione paciente e profissional");
       return;
     }
-    setSaving(true);
     const startsAt = new Date(`${form.date}T${form.start_time}:00`);
     const endsAt = new Date(startsAt.getTime() + form.duration * 60000);
+
+    // Conflict check — block save if another non-canceled appointment overlaps
+    // for the same professional. Skip when status is canceled.
+    if (form.status !== "canceled") {
+      const conflict = await checkAppointmentConflict({
+        professional_id: form.professional_id,
+        starts_at: startsAt,
+        ends_at: endsAt,
+        exclude_id: editing?.id,
+      });
+      if (!conflict.ok) {
+        const c = conflict.conflicts[0];
+        const range = `${new Date(c.starts_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}–${new Date(c.ends_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
+        toast.error(
+          `Conflito: já existe consulta ${c.patient_name ? `de ${c.patient_name} ` : ""}das ${range} para esse profissional.`,
+        );
+        return;
+      }
+    }
+
+    setSaving(true);
     const payload = {
       user_id: user.id,
       patient_id: form.patient_id,
