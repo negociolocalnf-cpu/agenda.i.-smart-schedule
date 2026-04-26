@@ -46,7 +46,7 @@ import {
   CheckCircle2,
   AlertTriangle,
 } from "lucide-react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 
 type Status = "scheduled" | "confirmed" | "completed" | "no_show" | "canceled";
 
@@ -98,6 +98,7 @@ const Agenda = () => {
   const [items, setItems] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Appointment | null>(null);
@@ -709,17 +710,28 @@ const Agenda = () => {
               com a mensagem pronta) só desta vez?
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter className="sm:justify-between">
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={async () => {
-                const a = fallbackPrompt;
-                setFallbackPrompt(null);
-                if (a) await sendConfirmation(a, "manual");
-              }}
-            >
-              Enviar como manual
-            </AlertDialogAction>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setFallbackPrompt(null);
+                  navigate("/dashboard/configuracoes#whatsapp");
+                }}
+              >
+                Verificar credenciais
+              </Button>
+              <AlertDialogAction
+                onClick={async () => {
+                  const a = fallbackPrompt;
+                  setFallbackPrompt(null);
+                  if (a) await sendConfirmation(a, "manual");
+                }}
+              >
+                Enviar como manual
+              </AlertDialogAction>
+            </div>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
