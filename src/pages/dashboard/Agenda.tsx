@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useProfessionals, usePatients } from "@/hooks/useClinicData";
 import { useAuth } from "@/hooks/useAuth";
+import { useWhatsappSettings } from "@/hooks/useWhatsappSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
@@ -43,6 +44,7 @@ import {
   ChevronRight,
   MessageCircle,
   CheckCircle2,
+  AlertTriangle,
 } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 
@@ -91,6 +93,7 @@ const Agenda = () => {
   const { user } = useAuth();
   const { data: professionals } = useProfessionals();
   const { data: patients } = usePatients();
+  const { settings: whatsappSettings } = useWhatsappSettings();
   const [date, setDate] = useState(todayISO());
   const [items, setItems] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -105,6 +108,23 @@ const Agenda = () => {
   const handleConfirmWhatsapp = async (a: Appointment) => {
     if (!a.patient?.phone) {
       toast.error("Paciente sem telefone cadastrado");
+      return;
+    }
+    // Block API sends when credentials are not verified
+    if (
+      whatsappSettings?.mode === "api" &&
+      whatsappSettings.verification_status !== "valid"
+    ) {
+      const reason =
+        whatsappSettings.verification_status === "invalid"
+          ? "As credenciais Meta estão inválidas."
+          : "As credenciais Meta ainda não foram verificadas.";
+      toast.error(`${reason} Verifique em Configurações antes de enviar via API.`, {
+        action: {
+          label: "Abrir Configurações",
+          onClick: () => window.open("/dashboard/configuracoes", "_self"),
+        },
+      });
       return;
     }
     setConfirmingId(a.id);
@@ -346,6 +366,27 @@ const Agenda = () => {
             {fmtDateLabel(date)} · {items.length} consulta(s)
           </span>
         </div>
+
+        {whatsappSettings?.mode === "api" &&
+          whatsappSettings.verification_status !== "valid" && (
+            <div className="flex items-start gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-4 text-sm">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
+              <div className="flex-1">
+                <p className="font-medium text-foreground">
+                  WhatsApp em modo API sem credenciais verificadas
+                </p>
+                <p className="text-muted-foreground">
+                  {whatsappSettings.verification_status === "invalid"
+                    ? "As credenciais Meta estão inválidas."
+                    : "As credenciais Meta ainda não foram verificadas."}{" "}
+                  O envio via API está bloqueado até a verificação ser concluída.
+                </p>
+              </div>
+              <Button asChild size="sm" variant="outline">
+                <Link to="/dashboard/configuracoes">Verificar agora</Link>
+              </Button>
+            </div>
+          )}
 
         {professionals.length === 0 || patients.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
