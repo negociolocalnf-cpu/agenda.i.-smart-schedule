@@ -437,6 +437,94 @@ export function WhatsappSettingsCard() {
             </div>
           )}
 
+          {/* Enviar teste */}
+          <div className="space-y-3 rounded-xl border border-border bg-muted/20 p-4">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <Send className="h-4 w-4 text-primary" />
+              Enviar teste
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Envie uma mensagem de teste para o seu próprio número antes de usar
+              na agenda. Isso confirma que o template e a entrega estão corretos.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-[1fr,auto]">
+              <div className="space-y-1.5">
+                <Label htmlFor="test_phone">Telefone (com DDD)</Label>
+                <Input
+                  id="test_phone"
+                  value={testPhone}
+                  onChange={(e) => setTestPhone(e.target.value)}
+                  placeholder="Ex: 11999999999"
+                  inputMode="tel"
+                  maxLength={20}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Template</Label>
+                <RadioGroup
+                  value={testTemplate}
+                  onValueChange={(v) =>
+                    setTestTemplate(v as "confirmation" | "reminder")
+                  }
+                  className="flex h-10 items-center gap-3 rounded-md border border-border bg-background px-3"
+                >
+                  <label className="flex cursor-pointer items-center gap-1.5 text-xs">
+                    <RadioGroupItem value="confirmation" />
+                    Confirmação
+                  </label>
+                  <label className="flex cursor-pointer items-center gap-1.5 text-xs">
+                    <RadioGroupItem value="reminder" />
+                    Lembrete
+                  </label>
+                </RadioGroup>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => handleSendTest("manual")}
+                disabled={sendingTest !== null || dirty}
+              >
+                {sendingTest === "manual" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <MessageCircle className="h-4 w-4" />
+                )}
+                Testar modo manual
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => handleSendTest("api")}
+                disabled={
+                  sendingTest !== null ||
+                  dirty ||
+                  status !== "valid" ||
+                  !settings?.has_access_token
+                }
+                title={
+                  status !== "valid"
+                    ? "Verifique as credenciais Meta antes de testar via API."
+                    : undefined
+                }
+              >
+                {sendingTest === "api" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
+                Testar via API
+              </Button>
+            </div>
+            {dirty && (
+              <p className="text-xs text-muted-foreground">
+                Salve as alterações antes de enviar um teste.
+              </p>
+            )}
+          </div>
+
           <div className="flex items-center justify-end gap-2 border-t border-border pt-4">
             <Button
               type="button"
