@@ -37,7 +37,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWhatsappSettings } from "@/hooks/useWhatsappSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, MessageCircle, CheckCircle2, XCircle, Search, Mail, Phone, User, Calendar as CalendarIcon } from "lucide-react";
+import { Loader2, MessageCircle, CheckCircle2, XCircle, Search, Mail, Phone, User, Calendar as CalendarIcon, AlertTriangle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type Channel = "manual" | "api" | null;
 
@@ -471,6 +472,20 @@ const Confirmacoes = () => {
                     >
                       <Mail className="h-4 w-4" /> {selected.patient.email}
                     </a>
+                  )}
+                  {!selected.patient?.phone && !selected.patient?.email && (
+                    <Alert className="border-warning/40 bg-warning/10 text-warning">
+                      <AlertTriangle className="h-4 w-4 !text-warning" />
+                      <AlertDescription className="text-warning">
+                        Paciente sem telefone nem e-mail cadastrado. Edite o cadastro para enviar a confirmação.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  {selected.patient && !selected.patient.phone && selected.patient.email && (
+                    <span className="text-xs italic">⚠ Sem telefone — não é possível enviar via WhatsApp.</span>
+                  )}
+                  {selected.patient && selected.patient.phone && !selected.patient.email && (
+                    <span className="text-xs italic">⚠ Sem e-mail cadastrado.</span>
                   )}
                 </div>
               </div>

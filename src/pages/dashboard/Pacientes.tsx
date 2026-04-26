@@ -36,6 +36,7 @@ import {
   Phone,
   MessageCircle,
   Mail,
+  AlertTriangle,
 } from "lucide-react";
 
 const empty = {
@@ -192,13 +193,28 @@ const Pacientes = () => {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold">{p.name}</p>
-                    <div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground">
-                      {p.phone && <span>{p.phone}</span>}
-                      {p.email && <span className="truncate">{p.email}</span>}
+                    <div className="mt-0.5 flex flex-wrap items-center gap-x-4 gap-y-0.5 text-xs text-muted-foreground">
+                      {p.phone ? <span>{p.phone}</span> : null}
+                      {p.email ? <span className="truncate">{p.email}</span> : null}
+                      {!p.phone && !p.email && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2 py-0.5 text-[10px] font-semibold uppercase text-warning">
+                          <AlertTriangle className="h-3 w-3" /> Sem contato
+                        </span>
+                      )}
+                      {p.phone && !p.email && (
+                        <span className="text-[10px] uppercase text-muted-foreground/70">
+                          sem e-mail
+                        </span>
+                      )}
+                      {!p.phone && p.email && (
+                        <span className="text-[10px] uppercase text-muted-foreground/70">
+                          sem telefone
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
-                    {p.phone && (
+                    {p.phone ? (
                       <>
                         <Button
                           variant="ghost"
@@ -227,8 +243,31 @@ const Pacientes = () => {
                           </a>
                         </Button>
                       </>
+                    ) : (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 opacity-40"
+                          disabled
+                          title="Paciente sem telefone — edite para adicionar"
+                          onClick={() => toast.warning("Paciente sem telefone cadastrado")}
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 opacity-40"
+                          disabled
+                          title="Paciente sem telefone — edite para adicionar"
+                          onClick={() => toast.warning("Paciente sem telefone cadastrado")}
+                        >
+                          <Phone className="h-4 w-4" />
+                        </Button>
+                      </>
                     )}
-                    {p.email && (
+                    {p.email ? (
                       <Button
                         variant="ghost"
                         size="icon"
@@ -239,6 +278,17 @@ const Pacientes = () => {
                         <a href={`mailto:${p.email}`}>
                           <Mail className="h-4 w-4 text-accent" />
                         </a>
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 opacity-40"
+                        disabled
+                        title="Paciente sem e-mail — edite para adicionar"
+                        onClick={() => toast.warning("Paciente sem e-mail cadastrado")}
+                      >
+                        <Mail className="h-4 w-4" />
                       </Button>
                     )}
                     <Button variant="ghost" size="sm" onClick={() => openEdit(p)}>
