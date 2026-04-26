@@ -693,6 +693,36 @@ const Agenda = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog
+        open={!!fallbackPrompt}
+        onOpenChange={(o) => !o && setFallbackPrompt(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Enviar como manual?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {whatsappSettings?.verification_status === "invalid"
+                ? "Suas credenciais Meta estão inválidas, então o envio via API não pode ser feito agora."
+                : "Suas credenciais Meta ainda não foram verificadas, então o envio via API não pode ser feito agora."}{" "}
+              Deseja enviar esta confirmação pelo modo manual (abrir o WhatsApp Web/App
+              com a mensagem pronta) só desta vez?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                const a = fallbackPrompt;
+                setFallbackPrompt(null);
+                if (a) await sendConfirmation(a, "manual");
+              }}
+            >
+              Enviar como manual
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
