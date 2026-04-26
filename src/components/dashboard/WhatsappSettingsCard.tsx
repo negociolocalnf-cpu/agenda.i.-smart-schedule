@@ -13,9 +13,11 @@ import {
   ShieldCheck,
   MessageCircle,
   Send,
+  UserRound,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import {
   useWhatsappSettings,
   type WhatsappMode,
@@ -46,6 +48,7 @@ function renderPreview(template: string, clinicName: string | null) {
 export function WhatsappSettingsCard() {
   const { settings, loading, saving, verifying, save, verify, defaults } =
     useWhatsappSettings();
+  const { user } = useAuth();
 
   const [mode, setMode] = useState<WhatsappMode>("manual");
   const [clinicName, setClinicName] = useState("");
@@ -172,6 +175,41 @@ export function WhatsappSettingsCard() {
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Falha na verificação");
     }
+  };
+
+  const handleUseMyPhone = async () => {
+    // 1) Try Supabase Auth phone (E.164)
+    const authPhone = (user?.phone ?? "").trim();
+    if (authPhone) {
+      setTestPhone(authPhone);
+      toast.success("Telefone preenchido a partir da sua conta.");
+      return;
+    }
+    // 2) Fallback: first active professional with a phone number
+    if (!user) {
+      toast.error("Faça login para usar essa opção.");
+      return;
+    }
+    const { data, error } = await supabase
+      .from("professionals")
+      .select("phone")
+      .eq("user_id", user.id)
+      .not("phone", "is", null)
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    if (error) {
+      toast.error("Não foi possível buscar seu telefone.");
+      return;
+    }
+    if (data?.phone) {
+      setTestPhone(data.phone);
+      toast.success("Telefone preenchido a partir do profissional cadastrado.");
+      return;
+    }
+    toast.error(
+      "Nenhum telefone encontrado. Adicione o telefone na sua conta ou em Profissionais.",
+    );
   };
 
   const handleSendTest = async (channel: "manual" | "api") => {
@@ -450,14 +488,26 @@ export function WhatsappSettingsCard() {
             <div className="grid gap-3 sm:grid-cols-[1fr,auto]">
               <div className="space-y-1.5">
                 <Label htmlFor="test_phone">Telefone (com DDD)</Label>
-                <Input
-                  id="test_phone"
-                  value={testPhone}
-                  onChange={(e) => setTestPhone(e.target.value)}
-                  placeholder="Ex: 11999999999"
-                  inputMode="tel"
-                  maxLength={20}
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="test_phone"
+                    value={testPhone}
+                    onChange={(e) => setTestPhone(e.target.value)}
+                    placeholder="Ex: 11999999999"
+                    inputMode="tel"
+                    maxLength={20}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleUseMyPhone}
+                    className="shrink-0"
+                  >
+                    <UserRound className="h-4 w-4" />
+                    Usar meu número
+                  </Button>
+                </div>
               </div>
               <div className="space-y-1.5">
                 <Label>Template</Label>
