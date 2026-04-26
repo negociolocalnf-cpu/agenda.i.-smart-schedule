@@ -12,8 +12,10 @@ import {
   EyeOff,
   ShieldCheck,
   MessageCircle,
+  Send,
 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import {
   useWhatsappSettings,
   type WhatsappMode,
