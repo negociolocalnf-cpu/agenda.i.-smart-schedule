@@ -104,34 +104,23 @@ const Agenda = () => {
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<Appointment | null>(null);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
+  const [fallbackPrompt, setFallbackPrompt] = useState<Appointment | null>(null);
 
-  const handleConfirmWhatsapp = async (a: Appointment) => {
-    if (!a.patient?.phone) {
-      toast.error("Paciente sem telefone cadastrado");
-      return;
-    }
-    // Block API sends when credentials are not verified
-    if (
-      whatsappSettings?.mode === "api" &&
-      whatsappSettings.verification_status !== "valid"
-    ) {
-      const reason =
-        whatsappSettings.verification_status === "invalid"
-          ? "As credenciais Meta estão inválidas."
-          : "As credenciais Meta ainda não foram verificadas.";
-      toast.error(`${reason} Verifique em Configurações antes de enviar via API.`, {
-        action: {
-          label: "Abrir Configurações",
-          onClick: () => window.open("/dashboard/configuracoes", "_self"),
-        },
-      });
-      return;
-    }
+  const sendConfirmation = async (
+    a: Appointment,
+    forcedChannel?: "manual" | "api",
+  ) => {
     setConfirmingId(a.id);
     try {
       const { data, error } = await supabase.functions.invoke(
         "whatsapp-send-confirmation",
-        { body: { appointment_id: a.id, template: "confirmation" } },
+        {
+          body: {
+            appointment_id: a.id,
+            template: "confirmation",
+            ...(forcedChannel ? { channel: forcedChannel } : {}),
+          },
+        },
       );
       if (error) throw new Error(error.message);
       const res = data as {
@@ -147,7 +136,6 @@ const Agenda = () => {
       } else if (res?.mode === "api") {
         toast.success("Confirmação enviada via WhatsApp");
       }
-      // Optimistic update so the badge appears immediately
       setItems((prev) =>
         prev.map((it) =>
           it.id === a.id
@@ -164,6 +152,22 @@ const Agenda = () => {
     } finally {
       setConfirmingId(null);
     }
+  };
+
+  const handleConfirmWhatsapp = async (a: Appointment) => {
+    if (!a.patient?.phone) {
+      toast.error("Paciente sem telefone cadastrado");
+      return;
+    }
+    // When API is selected but not verified, ask whether to fall back to manual
+    if (
+      whatsappSettings?.mode === "api" &&
+      whatsappSettings.verification_status !== "valid"
+    ) {
+      setFallbackPrompt(a);
+      return;
+    }
+    await sendConfirmation(a);
   };
 
   const [form, setForm] = useState({
@@ -685,6 +689,36 @@ const Agenda = () => {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Remover
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={!!fallbackPrompt}
+        onOpenChange={(o) => !o && setFallbackPrompt(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Enviar como manual?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {whatsappSettings?.verification_status === "invalid"
+                ? "Suas credenciais Meta estão inválidas, então o envio via API não pode ser feito agora."
+                : "Suas credenciais Meta ainda não foram verificadas, então o envio via API não pode ser feito agora."}{" "}
+              Deseja enviar esta confirmação pelo modo manual (abrir o WhatsApp Web/App
+              com a mensagem pronta) só desta vez?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                const a = fallbackPrompt;
+                setFallbackPrompt(null);
+                if (a) await sendConfirmation(a, "manual");
+              }}
+            >
+              Enviar como manual
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
