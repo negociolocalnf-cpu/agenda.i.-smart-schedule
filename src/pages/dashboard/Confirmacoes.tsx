@@ -473,6 +473,20 @@ const Confirmacoes = () => {
                       <Mail className="h-4 w-4" /> {selected.patient.email}
                     </a>
                   )}
+                  {!selected.patient?.phone && !selected.patient?.email && (
+                    <Alert className="border-warning/40 bg-warning/10 text-warning">
+                      <AlertTriangle className="h-4 w-4 !text-warning" />
+                      <AlertDescription className="text-warning">
+                        Paciente sem telefone nem e-mail cadastrado. Edite o cadastro para enviar a confirmação.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  {selected.patient && !selected.patient.phone && selected.patient.email && (
+                    <span className="text-xs italic">⚠ Sem telefone — não é possível enviar via WhatsApp.</span>
+                  )}
+                  {selected.patient && selected.patient.phone && !selected.patient.email && (
+                    <span className="text-xs italic">⚠ Sem e-mail cadastrado.</span>
+                  )}
                 </div>
               </div>
 
