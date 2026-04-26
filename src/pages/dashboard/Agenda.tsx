@@ -44,6 +44,7 @@ import {
   ChevronRight,
   MessageCircle,
   CheckCircle2,
+  AlertTriangle,
 } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 
