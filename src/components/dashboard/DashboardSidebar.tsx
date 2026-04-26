@@ -27,7 +27,11 @@ const items = [
   { to: "/dashboard/configuracoes", icon: Settings, label: "Configurações" },
 ];
 
-export const DashboardSidebar = () => {
+interface DashboardSidebarProps {
+  onOpenSearch?: () => void;
+}
+
+export const DashboardSidebar = ({ onOpenSearch }: DashboardSidebarProps) => {
   const navigate = useNavigate();
   const { signOut } = useAuth();
   const { isActive, planName, loading } = useSubscription();
@@ -38,6 +42,10 @@ export const DashboardSidebar = () => {
     navigate("/");
   };
 
+  const isMac =
+    typeof navigator !== "undefined" &&
+    /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
       <div className="flex h-16 items-center border-b border-sidebar-border px-6">
@@ -45,6 +53,22 @@ export const DashboardSidebar = () => {
           <Logo variant="light" />
         </Link>
       </div>
+
+      {onOpenSearch && (
+        <div className="px-4 pt-4">
+          <button
+            type="button"
+            onClick={onOpenSearch}
+            className="flex w-full items-center gap-2 rounded-xl border border-sidebar-border bg-sidebar-accent/30 px-3 py-2 text-left text-xs text-sidebar-foreground transition-smooth hover:bg-sidebar-accent/60 hover:text-sidebar-primary-foreground"
+          >
+            <Search className="h-3.5 w-3.5" />
+            <span className="flex-1">Buscar…</span>
+            <kbd className="rounded border border-sidebar-border bg-sidebar px-1.5 py-0.5 font-mono text-[10px]">
+              {isMac ? "⌘" : "Ctrl"} K
+            </kbd>
+          </button>
+        </div>
+      )}
 
       <nav className="flex-1 space-y-1 p-4">
         {items.map((item) => (
