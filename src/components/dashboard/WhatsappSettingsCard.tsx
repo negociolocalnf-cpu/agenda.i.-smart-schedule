@@ -177,6 +177,41 @@ export function WhatsappSettingsCard() {
     }
   };
 
+  const handleUseMyPhone = async () => {
+    // 1) Try Supabase Auth phone (E.164)
+    const authPhone = (user?.phone ?? "").trim();
+    if (authPhone) {
+      setTestPhone(authPhone);
+      toast.success("Telefone preenchido a partir da sua conta.");
+      return;
+    }
+    // 2) Fallback: first active professional with a phone number
+    if (!user) {
+      toast.error("Faça login para usar essa opção.");
+      return;
+    }
+    const { data, error } = await supabase
+      .from("professionals")
+      .select("phone")
+      .eq("user_id", user.id)
+      .not("phone", "is", null)
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    if (error) {
+      toast.error("Não foi possível buscar seu telefone.");
+      return;
+    }
+    if (data?.phone) {
+      setTestPhone(data.phone);
+      toast.success("Telefone preenchido a partir do profissional cadastrado.");
+      return;
+    }
+    toast.error(
+      "Nenhum telefone encontrado. Adicione o telefone na sua conta ou em Profissionais.",
+    );
+  };
+
   const handleSendTest = async (channel: "manual" | "api") => {
     if (testPhone.replace(/\D/g, "").length < 10) {
       toast.error("Informe um telefone válido (com DDD).");
