@@ -37,7 +37,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWhatsappSettings } from "@/hooks/useWhatsappSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, MessageCircle, CheckCircle2, XCircle, Search, Mail, Phone, User, Calendar as CalendarIcon } from "lucide-react";
+import { Loader2, MessageCircle, CheckCircle2, XCircle, Search, Mail, Phone, User, Calendar as CalendarIcon, AlertTriangle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type Channel = "manual" | "api" | null;
 
