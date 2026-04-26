@@ -488,14 +488,26 @@ export function WhatsappSettingsCard() {
             <div className="grid gap-3 sm:grid-cols-[1fr,auto]">
               <div className="space-y-1.5">
                 <Label htmlFor="test_phone">Telefone (com DDD)</Label>
-                <Input
-                  id="test_phone"
-                  value={testPhone}
-                  onChange={(e) => setTestPhone(e.target.value)}
-                  placeholder="Ex: 11999999999"
-                  inputMode="tel"
-                  maxLength={20}
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="test_phone"
+                    value={testPhone}
+                    onChange={(e) => setTestPhone(e.target.value)}
+                    placeholder="Ex: 11999999999"
+                    inputMode="tel"
+                    maxLength={20}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleUseMyPhone}
+                    className="shrink-0"
+                  >
+                    <UserRound className="h-4 w-4" />
+                    Usar meu número
+                  </Button>
+                </div>
               </div>
               <div className="space-y-1.5">
                 <Label>Template</Label>
