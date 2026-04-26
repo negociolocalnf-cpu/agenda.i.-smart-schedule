@@ -55,6 +55,11 @@ export function WhatsappSettingsCard() {
   const [businessAccountId, setBusinessAccountId] = useState("");
   const [accessToken, setAccessToken] = useState("");
   const [showToken, setShowToken] = useState(false);
+  const [testPhone, setTestPhone] = useState("");
+  const [testTemplate, setTestTemplate] = useState<"confirmation" | "reminder">(
+    "confirmation",
+  );
+  const [sendingTest, setSendingTest] = useState<"manual" | "api" | null>(null);
 
   // Hydrate from server state
   useEffect(() => {
