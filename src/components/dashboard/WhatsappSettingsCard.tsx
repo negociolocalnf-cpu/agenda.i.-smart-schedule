@@ -174,6 +174,45 @@ export function WhatsappSettingsCard() {
     }
   };
 
+  const handleSendTest = async (channel: "manual" | "api") => {
+    if (testPhone.replace(/\D/g, "").length < 10) {
+      toast.error("Informe um telefone válido (com DDD).");
+      return;
+    }
+    if (dirty) {
+      toast.error("Salve as alterações antes de enviar um teste.");
+      return;
+    }
+    setSendingTest(channel);
+    try {
+      const { data, error } = await supabase.functions.invoke("whatsapp-send-test", {
+        body: { to_phone: testPhone, template: testTemplate, channel },
+      });
+      if (error) throw new Error(error.message);
+      const payload = data as {
+        ok?: boolean;
+        error?: string;
+        url?: string;
+        meta_message_id?: string | null;
+      };
+      if (payload?.error) throw new Error(payload.error);
+      if (channel === "manual" && payload?.url) {
+        window.open(payload.url, "_blank", "noopener,noreferrer");
+        toast.success("Link de teste aberto no WhatsApp.");
+      } else {
+        toast.success(
+          payload?.meta_message_id
+            ? `Teste enviado via API (id ${payload.meta_message_id}).`
+            : "Teste enviado.",
+        );
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha ao enviar teste");
+    } finally {
+      setSendingTest(null);
+    }
+  };
+
   const status = settings?.verification_status ?? "not_verified";
 
   return (
